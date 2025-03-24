@@ -1,0 +1,70 @@
+name: Haskell CI
+
+on:
+  push:
+    branches: [ 'main' ]
+  pull_request:
+    branches: [ 'main' ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:  [ macos-13, macos-15 ]
+
+    env:
+      cache-name: cabal-ghc
+      target-config: --test-show-details=streaming --enable-tests --disable-benchmarks
+
+    steps:
+    - run: git config --global core.autocrlf false
+
+    - uses: actions/checkout@v3
+      with:
+        repository: kazu-yamamoto/dnsext
+
+    - uses: haskell-actions/setup@v2
+      with:
+        ghc-version: '9.10'
+        cabal-version: latest
+
+    - name: Hackage index, Cache Key
+      id: params
+      run: |
+        ghc_version=$(ghc --numeric-version)
+        cabal update
+        echo "cache=${{ runner.os }}-build-${{ env.cache-name }}-${ghc_version}-${{ hashFiles('**/*.cabal') }}-${{ hashFiles('**/cabal.project') }}" > "$GITHUB_OUTPUT"
+        echo "ghc_version=$ghc_version" >> "$GITHUB_OUTPUT"
+
+    - name: Restore Cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/.cabal
+        key: ${{ steps.params.outputs.cache }}
+
+    - name: Install dependencies
+      id: inst-dep
+      run: |
+        if cabal build --offline --only-dependencies ${{ env.target-config }} all
+        then
+          echo "installed=false" >> "$GITHUB_OUTPUT"
+        else
+          cabal build --only-dependencies ${{ env.target-config }} all
+          echo "installed=true" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Save Cache
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.cabal
+        key: ${{ steps.params.outputs.cache }}
+
+    - name: Build
+      run: cabal build ${{ env.target-config }} all
+
+    - name: Run tests
+      run: env DISABLE_V6_NS=1 cabal test ${{ env.target-config }} all
+
