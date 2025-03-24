@@ -1,4 +1,5 @@
 class Dug < Formula
+  version "20250318"
   desc "Extensible DNS libraries written purely in Haskell"
   homepage "https://github.com/kazu-yamamoto/dnsext"
   url "https://github.com/kazu-yamamoto/dnsext/releases/download/dug-20250318/dug-mac-arm64"
