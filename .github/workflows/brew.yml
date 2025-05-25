@@ -21,10 +21,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - name: update formula
         run: |
-          cat Formula/dug.rb | \
+          sed "" Formula/dug.rb | \
             sed s"/version.*/version \"${{ github.event.client_payload.version }}\"/" | \
             sed s"/sha256 .*/sha256 \"${{ github.event.client_payload.sha256 }}\"/" | \
             sed s"@url .*@url \"${{ github.event.client_payload.url }}\"@" \
@@ -32,7 +32,7 @@ jobs:
           mv /tmp/test Formula/dug.rb
       - name: create pull request
         id: cpr
-        uses: peter-evans/create-pull-request@v3
+        uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           commit-message: 'Update packages'
