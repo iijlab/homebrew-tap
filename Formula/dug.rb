@@ -1,9 +1,9 @@
 class Dug < Formula
   desc "DNS lookup utility in Haskell"
   homepage "https://github.com/kazu-yamamoto/dnsext"
-  url "https://github.com/kazu-yamamoto/dnsext/releases/download/dug-20250318/dug-mac-arm64"
-  version "20250318"
-  sha256 "516253b331396a4fc3398258728caf4c9b3bd51e5c036f0d5745fe352307e863"
+  url "https://github.com/thehajime/dnsext/releases/download/20250622/dug-mac-arm64"
+  version "20250622"
+  sha256 "8644c2e67ee36870cf5906239d16c3d2cfdbb3aeae949414c8c6239470627589"
   license ""
 
   def install
